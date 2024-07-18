@@ -9,7 +9,7 @@ var _ Resource = &FakeResource{}
 
 func NewFakeResource(stack Stack, resType string, id string, spec FakeResourceSpec, status *FakeResourceStatus) *FakeResource {
 	r := &FakeResource{
-		ResourceMeta: NewResourceMeta(stack, resType, id),
+		ResourceMeta: NewResourceMeta(stack, resType, id, false),
 		Spec:         spec,
 		Status:       status,
 	}

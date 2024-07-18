@@ -24,7 +24,7 @@ type TargetGroup struct {
 // NewTargetGroup constructs new TargetGroup resource.
 func NewTargetGroup(stack core.Stack, id string, spec TargetGroupSpec) *TargetGroup {
 	tg := &TargetGroup{
-		ResourceMeta: core.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", id),
+		ResourceMeta: core.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", id, false),
 		Spec:         spec,
 		Status:       nil,
 	}

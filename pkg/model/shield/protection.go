@@ -12,7 +12,7 @@ type Protection struct {
 // NewProtection constructs new Protection resource.
 func NewProtection(stack core.Stack, id string, spec ProtectionSpec) *Protection {
 	p := &Protection{
-		ResourceMeta: core.NewResourceMeta(stack, "AWS::Shield::Protection", id),
+		ResourceMeta: core.NewResourceMeta(stack, "AWS::Shield::Protection", id, false),
 		Spec:         spec,
 	}
 	stack.AddResource(p)

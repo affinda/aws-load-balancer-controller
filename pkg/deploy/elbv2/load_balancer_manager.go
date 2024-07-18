@@ -6,6 +6,7 @@ import (
 
 	awssdk "github.com/aws/aws-sdk-go/aws"
 	elbv2sdk "github.com/aws/aws-sdk-go/service/elbv2"
+	"github.com/go-errors/errors"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"sigs.k8s.io/aws-load-balancer-controller/pkg/aws/services"
@@ -50,6 +51,9 @@ type defaultLoadBalancerManager struct {
 }
 
 func (m *defaultLoadBalancerManager) Create(ctx context.Context, resLB *elbv2model.LoadBalancer) (elbv2model.LoadBalancerStatus, error) {
+	if resLB.ReconcileDisabled() {
+		return elbv2model.LoadBalancerStatus{}, errors.Errorf("resource does not exist but reconciliation is disabled, type %v, id %v", resLB.Type(), resLB.ID())
+	}
 	req, err := buildSDKCreateLoadBalancerInput(resLB.Spec)
 	if err != nil {
 		return elbv2model.LoadBalancerStatus{}, err
@@ -86,6 +90,9 @@ func (m *defaultLoadBalancerManager) Create(ctx context.Context, resLB *elbv2mod
 }
 
 func (m *defaultLoadBalancerManager) Update(ctx context.Context, resLB *elbv2model.LoadBalancer, sdkLB LoadBalancerWithTags) (elbv2model.LoadBalancerStatus, error) {
+	if resLB.ReconcileDisabled() {
+		return buildResLoadBalancerStatus(sdkLB), nil
+	}
 	if err := m.updateSDKLoadBalancerWithTags(ctx, resLB, sdkLB); err != nil {
 		return elbv2model.LoadBalancerStatus{}, err
 	}

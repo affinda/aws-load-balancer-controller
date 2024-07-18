@@ -24,7 +24,7 @@ type Listener struct {
 // NewListener constructs new Listener resource.
 func NewListener(stack core.Stack, id string, spec ListenerSpec) *Listener {
 	ls := &Listener{
-		ResourceMeta: core.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::Listener", id),
+		ResourceMeta: core.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::Listener", id, false),
 		Spec:         spec,
 		Status:       nil,
 	}

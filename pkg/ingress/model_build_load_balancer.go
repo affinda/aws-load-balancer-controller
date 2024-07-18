@@ -25,6 +25,8 @@ import (
 )
 
 const (
+	lbReconcileEnabled             = "enabled"
+	lbReconcileDisabled            = "disabled"
 	resourceIDLoadBalancer         = "LoadBalancer"
 	minimalAvailableIPAddressCount = int64(8)
 )
@@ -34,7 +36,11 @@ func (t *defaultModelBuildTask) buildLoadBalancer(ctx context.Context, listenPor
 	if err != nil {
 		return nil, err
 	}
-	lb := elbv2model.NewLoadBalancer(t.stack, resourceIDLoadBalancer, lbSpec)
+	reconcileDisabled, err := t.buildLoadBalancerReconcileDisabled(ctx)
+	if err != nil {
+		return nil, err
+	}
+	lb := elbv2model.NewLoadBalancer(t.stack, resourceIDLoadBalancer, lbSpec, reconcileDisabled)
 	t.loadBalancer = lb
 	return lb, nil
 }
@@ -422,4 +428,20 @@ func isIPv6Supported(ipAddressType elbv2model.IPAddressType) bool {
 	default:
 		return false
 	}
+}
+
+func (t *defaultModelBuildTask) buildLoadBalancerReconcileDisabled(_ context.Context) (bool, error) {
+	for _, member := range t.ingGroup.Members {
+		state := ""
+		t.annotationParser.ParseStringAnnotation(annotations.IngressSuffixLoadBalancerReconciliation, &state, member.Ing.Annotations)
+		switch state {
+		case lbReconcileDisabled:
+			continue
+		case lbReconcileEnabled:
+			return false, nil
+		default:
+			return false, nil
+		}
+	}
+	return true, nil
 }

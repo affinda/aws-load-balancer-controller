@@ -24,7 +24,7 @@ type TargetGroupBindingResource struct {
 // NewTargetGroupBindingResource constructs new TargetGroupBindingResource resource.
 func NewTargetGroupBindingResource(stack core.Stack, id string, spec TargetGroupBindingResourceSpec) *TargetGroupBindingResource {
 	tgb := &TargetGroupBindingResource{
-		ResourceMeta: core.NewResourceMeta(stack, "K8S::ElasticLoadBalancingV2::TargetGroupBinding", id),
+		ResourceMeta: core.NewResourceMeta(stack, "K8S::ElasticLoadBalancingV2::TargetGroupBinding", id, false),
 		Spec:         spec,
 		Status:       nil,
 	}

@@ -34,6 +34,8 @@ const (
 	availabilityZoneAffinity                   = "availability_zone_affinity"
 	partialAvailabilityZoneAffinity            = "partial_availability_zone_affinity"
 	anyAvailabilityZone                        = "any_availability_zone"
+	lbReconcileEnabled                         = "enabled"
+	lbReconcileDisabled                        = "disabled"
 	resourceIDLoadBalancer                     = "LoadBalancer"
 	minimalAvailableIPAddressCount             = int64(8)
 )
@@ -47,7 +49,11 @@ func (t *defaultModelBuildTask) buildLoadBalancer(ctx context.Context, scheme el
 	if err != nil {
 		return err
 	}
-	t.loadBalancer = elbv2model.NewLoadBalancer(t.stack, resourceIDLoadBalancer, spec)
+	reconcileDisabled, err := t.buildLoadBalancerReconcileDisabled(ctx)
+	if err != nil {
+		return err
+	}
+	t.loadBalancer = elbv2model.NewLoadBalancer(t.stack, resourceIDLoadBalancer, spec, reconcileDisabled)
 	return nil
 }
 
@@ -533,4 +539,17 @@ func (t *defaultModelBuildTask) buildLoadBalancerName(_ context.Context, scheme 
 	sanitizedNamespace := invalidLoadBalancerNamePattern.ReplaceAllString(t.service.Namespace, "")
 	sanitizedName := invalidLoadBalancerNamePattern.ReplaceAllString(t.service.Name, "")
 	return fmt.Sprintf("k8s-%.8s-%.8s-%.10s", sanitizedNamespace, sanitizedName, uuid), nil
+}
+
+func (t *defaultModelBuildTask) buildLoadBalancerReconcileDisabled(_ context.Context) (bool, error) {
+	state := ""
+	t.annotationParser.ParseStringAnnotation(annotations.SvcLBSuffixLoadBalancerReconciliation, &state, t.service.Annotations)
+	switch state {
+	case lbReconcileDisabled:
+		return true, nil
+	case lbReconcileEnabled:
+		return false, nil
+	default:
+		return false, nil
+	}
 }

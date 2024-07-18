@@ -92,7 +92,7 @@ func Test_defaultTargetGroupAttributeReconciler_Reconcile(t *testing.T) {
 					},
 				},
 				resTG: &elbv2model.TargetGroup{
-					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1"),
+					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1", false),
 					Spec: elbv2model.TargetGroupSpec{
 						TargetGroupAttributes: []elbv2model.TargetGroupAttribute{
 							{
@@ -139,7 +139,7 @@ func Test_defaultTargetGroupAttributeReconciler_Reconcile(t *testing.T) {
 					},
 				},
 				resTG: &elbv2model.TargetGroup{
-					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1"),
+					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1", false),
 					Spec: elbv2model.TargetGroupSpec{
 						TargetGroupAttributes: []elbv2model.TargetGroupAttribute{
 							{

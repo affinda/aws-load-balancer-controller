@@ -22,9 +22,9 @@ type LoadBalancer struct {
 }
 
 // NewLoadBalancer constructs new LoadBalancer resource.
-func NewLoadBalancer(stack core.Stack, id string, spec LoadBalancerSpec) *LoadBalancer {
+func NewLoadBalancer(stack core.Stack, id string, spec LoadBalancerSpec, reconcileDisabled bool) *LoadBalancer {
 	lb := &LoadBalancer{
-		ResourceMeta: core.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", id),
+		ResourceMeta: core.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", id, reconcileDisabled),
 		Spec:         spec,
 		Status:       nil,
 	}

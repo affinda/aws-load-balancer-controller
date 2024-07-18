@@ -32,13 +32,13 @@ func Test_matchResAndSDKTargetGroups(t *testing.T) {
 			args: args{
 				resTGs: []*elbv2model.TargetGroup{
 					{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1", false),
 						Spec: elbv2model.TargetGroupSpec{
 							Name: "id-1",
 						},
 					},
 					{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-2"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-2", false),
 						Spec: elbv2model.TargetGroupSpec{
 							Name: "id-2",
 						},
@@ -67,7 +67,7 @@ func Test_matchResAndSDKTargetGroups(t *testing.T) {
 			want: []resAndSDKTargetGroupPair{
 				{
 					resTG: &elbv2model.TargetGroup{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1", false),
 						Spec: elbv2model.TargetGroupSpec{
 							Name: "id-1",
 						},
@@ -83,7 +83,7 @@ func Test_matchResAndSDKTargetGroups(t *testing.T) {
 				},
 				{
 					resTG: &elbv2model.TargetGroup{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-2"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-2", false),
 						Spec: elbv2model.TargetGroupSpec{
 							Name: "id-2",
 						},
@@ -104,13 +104,13 @@ func Test_matchResAndSDKTargetGroups(t *testing.T) {
 			args: args{
 				resTGs: []*elbv2model.TargetGroup{
 					{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1", false),
 						Spec: elbv2model.TargetGroupSpec{
 							Name: "id-1",
 						},
 					},
 					{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-2"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-2", false),
 						Spec: elbv2model.TargetGroupSpec{
 							Name: "id-2",
 						},
@@ -131,7 +131,7 @@ func Test_matchResAndSDKTargetGroups(t *testing.T) {
 			want: []resAndSDKTargetGroupPair{
 				{
 					resTG: &elbv2model.TargetGroup{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1", false),
 						Spec: elbv2model.TargetGroupSpec{
 							Name: "id-1",
 						},
@@ -148,7 +148,7 @@ func Test_matchResAndSDKTargetGroups(t *testing.T) {
 			},
 			want1: []*elbv2model.TargetGroup{
 				{
-					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-2"),
+					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-2", false),
 					Spec: elbv2model.TargetGroupSpec{
 						Name: "id-2",
 					},
@@ -160,7 +160,7 @@ func Test_matchResAndSDKTargetGroups(t *testing.T) {
 			args: args{
 				resTGs: []*elbv2model.TargetGroup{
 					{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1", false),
 						Spec: elbv2model.TargetGroupSpec{
 							Name: "id-1",
 						},
@@ -189,7 +189,7 @@ func Test_matchResAndSDKTargetGroups(t *testing.T) {
 			want: []resAndSDKTargetGroupPair{
 				{
 					resTG: &elbv2model.TargetGroup{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1", false),
 						Spec: elbv2model.TargetGroupSpec{
 							Name: "id-1",
 						},
@@ -220,7 +220,7 @@ func Test_matchResAndSDKTargetGroups(t *testing.T) {
 			args: args{
 				resTGs: []*elbv2model.TargetGroup{
 					{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1", false),
 						Spec: elbv2model.TargetGroupSpec{
 							Name:       "my-name",
 							TargetType: elbv2model.TargetTypeIP,
@@ -252,7 +252,7 @@ func Test_matchResAndSDKTargetGroups(t *testing.T) {
 			want: []resAndSDKTargetGroupPair{
 				{
 					resTG: &elbv2model.TargetGroup{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1", false),
 						Spec: elbv2model.TargetGroupSpec{
 							Name:       "my-name",
 							TargetType: elbv2model.TargetTypeIP,
@@ -313,13 +313,13 @@ func Test_mapResTargetGroupByResourceID(t *testing.T) {
 			args: args{
 				resTGs: []*elbv2model.TargetGroup{
 					{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1", false),
 						Spec: elbv2model.TargetGroupSpec{
 							Name: "id-1",
 						},
 					},
 					{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-2"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-2", false),
 						Spec: elbv2model.TargetGroupSpec{
 							Name: "id-2",
 						},
@@ -328,13 +328,13 @@ func Test_mapResTargetGroupByResourceID(t *testing.T) {
 			},
 			want: map[string]*elbv2model.TargetGroup{
 				"id-1": {
-					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1"),
+					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-1", false),
 					Spec: elbv2model.TargetGroupSpec{
 						Name: "id-1",
 					},
 				},
 				"id-2": {
-					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-2"),
+					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::TargetGroup", "id-2", false),
 					Spec: elbv2model.TargetGroupSpec{
 						Name: "id-2",
 					},

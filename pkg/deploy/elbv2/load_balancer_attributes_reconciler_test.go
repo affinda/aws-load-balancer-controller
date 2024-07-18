@@ -92,7 +92,7 @@ func Test_defaultLoadBalancerAttributeReconciler_updateSDKLoadBalancerWithAttrib
 					},
 				},
 				resLB: &elbv2model.LoadBalancer{
-					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1"),
+					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1", false),
 					Spec: elbv2model.LoadBalancerSpec{
 						LoadBalancerAttributes: []elbv2model.LoadBalancerAttribute{
 							{
@@ -139,7 +139,7 @@ func Test_defaultLoadBalancerAttributeReconciler_updateSDKLoadBalancerWithAttrib
 					},
 				},
 				resLB: &elbv2model.LoadBalancer{
-					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1"),
+					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1", false),
 					Spec: elbv2model.LoadBalancerSpec{
 						LoadBalancerAttributes: []elbv2model.LoadBalancerAttribute{
 							{

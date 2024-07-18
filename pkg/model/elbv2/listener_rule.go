@@ -21,7 +21,7 @@ type ListenerRule struct {
 // NewListenerRule constructs new ListenerRule resource.
 func NewListenerRule(stack core.Stack, id string, spec ListenerRuleSpec) *ListenerRule {
 	lr := &ListenerRule{
-		ResourceMeta: core.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::ListenerRule", id),
+		ResourceMeta: core.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::ListenerRule", id, false),
 		Spec:         spec,
 		Status:       nil,
 	}

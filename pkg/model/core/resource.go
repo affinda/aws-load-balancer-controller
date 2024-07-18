@@ -13,19 +13,21 @@ type Resource interface {
 }
 
 // NewResourceMeta constructs new resource metadata.
-func NewResourceMeta(stack Stack, resType string, id string) ResourceMeta {
+func NewResourceMeta(stack Stack, resType string, id string, reconcileDisabled bool) ResourceMeta {
 	return ResourceMeta{
-		stack:   stack,
-		resType: resType,
-		id:      id,
+		stack:             stack,
+		resType:           resType,
+		id:                id,
+		reconcileDisabled: reconcileDisabled,
 	}
 }
 
 // Metadata for all resources.
 type ResourceMeta struct {
-	stack   Stack
-	resType string
-	id      string
+	stack             Stack
+	resType           string
+	id                string
+	reconcileDisabled bool
 }
 
 func (m *ResourceMeta) Stack() Stack {
@@ -38,6 +40,10 @@ func (m *ResourceMeta) Type() string {
 
 func (m *ResourceMeta) ID() string {
 	return m.id
+}
+
+func (m *ResourceMeta) ReconcileDisabled() bool {
+	return m.reconcileDisabled
 }
 
 // ResourceVisitor represents a functor that can operate on a resource.

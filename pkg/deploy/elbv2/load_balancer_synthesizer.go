@@ -188,6 +188,9 @@ func mapSDKLoadBalancerByResourceID(sdkLBs []LoadBalancerWithTags, resourceIDTag
 
 // isSDKLoadBalancerRequiresReplacement checks whether a sdk LoadBalancer requires replacement to fulfill a LoadBalancer resource.
 func isSDKLoadBalancerRequiresReplacement(sdkLB LoadBalancerWithTags, resLB *elbv2model.LoadBalancer) bool {
+	if resLB.ReconcileDisabled() {
+		return false
+	}
 	if string(resLB.Spec.Type) != awssdk.StringValue(sdkLB.LoadBalancer.Type) {
 		return true
 	}

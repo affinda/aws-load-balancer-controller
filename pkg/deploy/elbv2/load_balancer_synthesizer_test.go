@@ -31,13 +31,13 @@ func Test_matchResAndSDKLoadBalancers(t *testing.T) {
 			args: args{
 				resLBs: []*elbv2model.LoadBalancer{
 					{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1", false),
 						Spec: elbv2model.LoadBalancerSpec{
 							Name: "id-1",
 						},
 					},
 					{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-2"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-2", false),
 						Spec: elbv2model.LoadBalancerSpec{
 							Name: "id-2",
 						},
@@ -66,7 +66,7 @@ func Test_matchResAndSDKLoadBalancers(t *testing.T) {
 			want: []resAndSDKLoadBalancerPair{
 				{
 					resLB: &elbv2model.LoadBalancer{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1", false),
 						Spec: elbv2model.LoadBalancerSpec{
 							Name: "id-1",
 						},
@@ -82,7 +82,7 @@ func Test_matchResAndSDKLoadBalancers(t *testing.T) {
 				},
 				{
 					resLB: &elbv2model.LoadBalancer{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-2"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-2", false),
 						Spec: elbv2model.LoadBalancerSpec{
 							Name: "id-2",
 						},
@@ -103,13 +103,13 @@ func Test_matchResAndSDKLoadBalancers(t *testing.T) {
 			args: args{
 				resLBs: []*elbv2model.LoadBalancer{
 					{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1", false),
 						Spec: elbv2model.LoadBalancerSpec{
 							Name: "id-1",
 						},
 					},
 					{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-2"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-2", false),
 						Spec: elbv2model.LoadBalancerSpec{
 							Name: "id-2",
 						},
@@ -130,7 +130,7 @@ func Test_matchResAndSDKLoadBalancers(t *testing.T) {
 			want: []resAndSDKLoadBalancerPair{
 				{
 					resLB: &elbv2model.LoadBalancer{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1", false),
 						Spec: elbv2model.LoadBalancerSpec{
 							Name: "id-1",
 						},
@@ -147,7 +147,7 @@ func Test_matchResAndSDKLoadBalancers(t *testing.T) {
 			},
 			want1: []*elbv2model.LoadBalancer{
 				{
-					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-2"),
+					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-2", false),
 					Spec: elbv2model.LoadBalancerSpec{
 						Name: "id-2",
 					},
@@ -159,7 +159,7 @@ func Test_matchResAndSDKLoadBalancers(t *testing.T) {
 			args: args{
 				resLBs: []*elbv2model.LoadBalancer{
 					{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1", false),
 						Spec: elbv2model.LoadBalancerSpec{
 							Name: "id-1",
 						},
@@ -188,7 +188,7 @@ func Test_matchResAndSDKLoadBalancers(t *testing.T) {
 			want: []resAndSDKLoadBalancerPair{
 				{
 					resLB: &elbv2model.LoadBalancer{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1", false),
 						Spec: elbv2model.LoadBalancerSpec{
 							Name: "id-1",
 						},
@@ -219,7 +219,7 @@ func Test_matchResAndSDKLoadBalancers(t *testing.T) {
 			args: args{
 				resLBs: []*elbv2model.LoadBalancer{
 					{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1", false),
 						Spec: elbv2model.LoadBalancerSpec{
 							Name: "my-name",
 							Type: elbv2model.LoadBalancerTypeNetwork,
@@ -251,7 +251,7 @@ func Test_matchResAndSDKLoadBalancers(t *testing.T) {
 			want: []resAndSDKLoadBalancerPair{
 				{
 					resLB: &elbv2model.LoadBalancer{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1", false),
 						Spec: elbv2model.LoadBalancerSpec{
 							Name: "my-name",
 							Type: elbv2model.LoadBalancerTypeNetwork,
@@ -311,13 +311,13 @@ func Test_mapResLoadBalancerByResourceID(t *testing.T) {
 			args: args{
 				resLBs: []*elbv2model.LoadBalancer{
 					{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1", false),
 						Spec: elbv2model.LoadBalancerSpec{
 							Name: "id-1",
 						},
 					},
 					{
-						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-2"),
+						ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-2", false),
 						Spec: elbv2model.LoadBalancerSpec{
 							Name: "id-2",
 						},
@@ -326,13 +326,13 @@ func Test_mapResLoadBalancerByResourceID(t *testing.T) {
 			},
 			want: map[string]*elbv2model.LoadBalancer{
 				"id-1": {
-					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1"),
+					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-1", false),
 					Spec: elbv2model.LoadBalancerSpec{
 						Name: "id-1",
 					},
 				},
 				"id-2": {
-					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-2"),
+					ResourceMeta: coremodel.NewResourceMeta(stack, "AWS::ElasticLoadBalancingV2::LoadBalancer", "id-2", false),
 					Spec: elbv2model.LoadBalancerSpec{
 						Name: "id-2",
 					},

@@ -22,7 +22,7 @@ type SecurityGroup struct {
 // NewSecurityGroup constructs new SecurityGroup resource.
 func NewSecurityGroup(stack core.Stack, id string, spec SecurityGroupSpec) *SecurityGroup {
 	sg := &SecurityGroup{
-		ResourceMeta: core.NewResourceMeta(stack, "AWS::EC2::SecurityGroup", id),
+		ResourceMeta: core.NewResourceMeta(stack, "AWS::EC2::SecurityGroup", id, false),
 		Spec:         spec,
 		Status:       nil,
 	}
