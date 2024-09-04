@@ -285,7 +285,7 @@ func Test_matchResAndSDKTargetGroups(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			featureGates := config.NewFeatureGates()
-			got, got1, got2, err := matchResAndSDKTargetGroups(tt.args.resTGs, tt.args.sdkTGs, tt.args.resourceIDTagKey, featureGates)
+			_, got, got1, got2, err := matchResAndSDKTargetGroups(tt.args.resTGs, tt.args.sdkTGs, tt.args.resourceIDTagKey, nil, featureGates)
 			if tt.wantErr != nil {
 				assert.EqualError(t, err, tt.wantErr.Error())
 			} else {

@@ -15,27 +15,29 @@ import (
 
 // NewTargetGroupSynthesizer constructs targetGroupSynthesizer
 func NewTargetGroupSynthesizer(elbv2Client services.ELBV2, trackingProvider tracking.Provider, taggingManager TaggingManager,
-	tgManager TargetGroupManager, logger logr.Logger, featureGates config.FeatureGates, stack core.Stack) *targetGroupSynthesizer {
+	tgManager TargetGroupManager, logger logr.Logger, protectedLoadBalancers sets.String, featureGates config.FeatureGates, stack core.Stack) *targetGroupSynthesizer {
 	return &targetGroupSynthesizer{
-		elbv2Client:      elbv2Client,
-		trackingProvider: trackingProvider,
-		taggingManager:   taggingManager,
-		tgManager:        tgManager,
-		featureGates:     featureGates,
-		logger:           logger,
-		stack:            stack,
-		unmatchedSDKTGs:  nil,
+		elbv2Client:            elbv2Client,
+		trackingProvider:       trackingProvider,
+		taggingManager:         taggingManager,
+		tgManager:              tgManager,
+		protectedLoadBalancers: protectedLoadBalancers,
+		featureGates:           featureGates,
+		logger:                 logger,
+		stack:                  stack,
+		unmatchedSDKTGs:        nil,
 	}
 }
 
 // targetGroupSynthesizer is responsible for synthesize TargetGroup resources types for certain stack.
 type targetGroupSynthesizer struct {
-	elbv2Client      services.ELBV2
-	trackingProvider tracking.Provider
-	taggingManager   TaggingManager
-	tgManager        TargetGroupManager
-	featureGates     config.FeatureGates
-	logger           logr.Logger
+	elbv2Client            services.ELBV2
+	trackingProvider       tracking.Provider
+	taggingManager         TaggingManager
+	tgManager              TargetGroupManager
+	protectedLoadBalancers sets.String
+	featureGates           config.FeatureGates
+	logger                 logr.Logger
 
 	stack           core.Stack
 	unmatchedSDKTGs []TargetGroupWithTags
@@ -48,8 +50,8 @@ func (s *targetGroupSynthesizer) Synthesize(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	matchedResAndSDKTGs, unmatchedResTGs, unmatchedSDKTGs, err := matchResAndSDKTargetGroups(resTGs, sdkTGs,
-		s.trackingProvider.ResourceIDTagKey(), s.featureGates)
+	protectedResAndSDKTGs, matchedResAndSDKTGs, unmatchedResTGs, unmatchedSDKTGs, err := matchResAndSDKTargetGroups(resTGs, sdkTGs,
+		s.trackingProvider.ResourceIDTagKey(), s.protectedLoadBalancers, s.featureGates)
 	if err != nil {
 		return err
 	}
@@ -58,6 +60,12 @@ func (s *targetGroupSynthesizer) Synthesize(ctx context.Context) error {
 	// * unmatched targetGroups might still be use by a listener rule.
 	s.unmatchedSDKTGs = unmatchedSDKTGs
 
+	for _, resTG := range protectedResAndSDKTGs {
+		_, err := s.tgManager.Update(ctx, resTG.resTG, resTG.sdkTG)
+		if err != nil {
+			return err
+		}
+	}
 	for _, resTG := range unmatchedResTGs {
 		tgStatus, err := s.tgManager.Create(ctx, resTG)
 		if err != nil {
@@ -99,7 +107,8 @@ type resAndSDKTargetGroupPair struct {
 }
 
 func matchResAndSDKTargetGroups(resTGs []*elbv2model.TargetGroup, sdkTGs []TargetGroupWithTags,
-	resourceIDTagKey string, featureGates config.FeatureGates) ([]resAndSDKTargetGroupPair, []*elbv2model.TargetGroup, []TargetGroupWithTags, error) {
+	resourceIDTagKey string, protectedLoadBalancers sets.String, featureGates config.FeatureGates) ([]resAndSDKTargetGroupPair, []resAndSDKTargetGroupPair, []*elbv2model.TargetGroup, []TargetGroupWithTags, error) {
+	var protectedResAndSDKTGs []resAndSDKTargetGroupPair
 	var matchedResAndSDKTGs []resAndSDKTargetGroupPair
 	var unmatchedResTGs []*elbv2model.TargetGroup
 	var unmatchedSDKTGs []TargetGroupWithTags
@@ -107,7 +116,7 @@ func matchResAndSDKTargetGroups(resTGs []*elbv2model.TargetGroup, sdkTGs []Targe
 	resTGsByID := mapResTargetGroupByResourceID(resTGs)
 	sdkTGsByID, err := mapSDKTargetGroupByResourceID(sdkTGs, resourceIDTagKey)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
 
 	resTGIDs := sets.StringKeySet(resTGsByID)
@@ -119,6 +128,13 @@ func matchResAndSDKTargetGroups(resTGs []*elbv2model.TargetGroup, sdkTGs []Targe
 		for _, sdkTG := range sdkTGs {
 			if isSDKTargetGroupRequiresReplacement(sdkTG, resTG, featureGates) {
 				unmatchedSDKTGs = append(unmatchedSDKTGs, sdkTG)
+				continue
+			}
+			if len(sdkTG.TargetGroup.LoadBalancerArns) > 0 && protectedLoadBalancers.Has(awssdk.StringValue(sdkTG.TargetGroup.LoadBalancerArns[0])) {
+				protectedResAndSDKTGs = append(protectedResAndSDKTGs, resAndSDKTargetGroupPair{
+					resTG: resTG,
+					sdkTG: sdkTG,
+				})
 				continue
 			}
 			matchedResAndSDKTGs = append(matchedResAndSDKTGs, resAndSDKTargetGroupPair{
@@ -138,7 +154,14 @@ func matchResAndSDKTargetGroups(resTGs []*elbv2model.TargetGroup, sdkTGs []Targe
 		unmatchedSDKTGs = append(unmatchedSDKTGs, sdkTGsByID[resID]...)
 	}
 
-	return matchedResAndSDKTGs, unmatchedResTGs, unmatchedSDKTGs, nil
+	unprotectedUnmatchedSDKTGs := make([]TargetGroupWithTags, 0, len(unmatchedSDKTGs))
+	for _, sdkTG := range unmatchedSDKTGs {
+		if len(sdkTG.TargetGroup.LoadBalancerArns) == 0 || !protectedLoadBalancers.Has(awssdk.StringValue(sdkTG.TargetGroup.LoadBalancerArns[0])) {
+			unprotectedUnmatchedSDKTGs = append(unprotectedUnmatchedSDKTGs, sdkTG)
+		}
+	}
+
+	return protectedResAndSDKTGs, matchedResAndSDKTGs, unmatchedResTGs, unprotectedUnmatchedSDKTGs, nil
 }
 
 func mapResTargetGroupByResourceID(resTGs []*elbv2model.TargetGroup) map[string]*elbv2model.TargetGroup {

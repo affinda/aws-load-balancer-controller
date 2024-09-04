@@ -11,21 +11,23 @@ import (
 )
 
 func NewListenerSynthesizer(elbv2Client services.ELBV2, taggingManager TaggingManager,
-	lsManager ListenerManager, logger logr.Logger, stack core.Stack) *listenerSynthesizer {
+	lsManager ListenerManager, logger logr.Logger, protectedLoadBalancers sets.String, stack core.Stack) *listenerSynthesizer {
 	return &listenerSynthesizer{
-		elbv2Client:    elbv2Client,
-		lsManager:      lsManager,
-		logger:         logger,
-		taggingManager: taggingManager,
-		stack:          stack,
+		elbv2Client:            elbv2Client,
+		lsManager:              lsManager,
+		logger:                 logger,
+		protectedLoadBalancers: protectedLoadBalancers,
+		taggingManager:         taggingManager,
+		stack:                  stack,
 	}
 }
 
 type listenerSynthesizer struct {
-	elbv2Client    services.ELBV2
-	lsManager      ListenerManager
-	logger         logr.Logger
-	taggingManager TaggingManager
+	elbv2Client            services.ELBV2
+	lsManager              ListenerManager
+	logger                 logr.Logger
+	protectedLoadBalancers sets.String
+	taggingManager         TaggingManager
 
 	stack core.Stack
 }
@@ -39,6 +41,10 @@ func (s *listenerSynthesizer) Synthesize(ctx context.Context) error {
 	}
 
 	for lbARN, resLSs := range resLSsByLBARN {
+		if s.protectedLoadBalancers.Has(lbARN) {
+			continue
+		}
+
 		if err := s.synthesizeListenersOnLB(ctx, lbARN, resLSs); err != nil {
 			return err
 		}

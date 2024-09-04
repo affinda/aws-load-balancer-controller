@@ -2,7 +2,9 @@ package deploy
 
 import (
 	"context"
+
 	"github.com/go-logr/logr"
+	"k8s.io/apimachinery/pkg/util/sets"
 	"sigs.k8s.io/aws-load-balancer-controller/pkg/aws"
 	"sigs.k8s.io/aws-load-balancer-controller/pkg/config"
 	"sigs.k8s.io/aws-load-balancer-controller/pkg/deploy/ec2"
@@ -31,6 +33,8 @@ func NewDefaultStackDeployer(cloud aws.Cloud, k8sClient client.Client,
 	trackingProvider := tracking.NewDefaultProvider(tagPrefix, config.ClusterName)
 	ec2TaggingManager := ec2.NewDefaultTaggingManager(cloud.EC2(), networkingSGManager, cloud.VpcID(), logger)
 
+	protectedLoadBalancers := sets.NewString(config.ProtectedLoadBalancers...)
+
 	return &defaultStackDeployer{
 		cloud:                               cloud,
 		k8sClient:                           k8sClient,
@@ -47,6 +51,7 @@ func NewDefaultStackDeployer(cloud aws.Cloud, k8sClient client.Client,
 		wafv2WebACLAssociationManager:       wafv2.NewDefaultWebACLAssociationManager(cloud.WAFv2(), logger),
 		wafRegionalWebACLAssociationManager: wafregional.NewDefaultWebACLAssociationManager(cloud.WAFRegional(), logger),
 		shieldProtectionManager:             shield.NewDefaultProtectionManager(cloud.Shield(), logger),
+		protectedLoadBalancers:              protectedLoadBalancers,
 		featureGates:                        config.FeatureGates,
 		vpcID:                               cloud.VpcID(),
 		logger:                              logger,
@@ -72,6 +77,7 @@ type defaultStackDeployer struct {
 	wafv2WebACLAssociationManager       wafv2.WebACLAssociationManager
 	wafRegionalWebACLAssociationManager wafregional.WebACLAssociationManager
 	shieldProtectionManager             shield.ProtectionManager
+	protectedLoadBalancers              sets.String
 	featureGates                        config.FeatureGates
 	vpcID                               string
 
@@ -85,12 +91,13 @@ type ResourceSynthesizer interface {
 
 // Deploy a resource stack.
 func (d *defaultStackDeployer) Deploy(ctx context.Context, stack core.Stack) error {
+
 	synthesizers := []ResourceSynthesizer{
 		ec2.NewSecurityGroupSynthesizer(d.cloud.EC2(), d.trackingProvider, d.ec2TaggingManager, d.ec2SGManager, d.vpcID, d.logger, stack),
-		elbv2.NewTargetGroupSynthesizer(d.cloud.ELBV2(), d.trackingProvider, d.elbv2TaggingManager, d.elbv2TGManager, d.logger, d.featureGates, stack),
-		elbv2.NewLoadBalancerSynthesizer(d.cloud.ELBV2(), d.trackingProvider, d.elbv2TaggingManager, d.elbv2LBManager, d.logger, stack),
-		elbv2.NewListenerSynthesizer(d.cloud.ELBV2(), d.elbv2TaggingManager, d.elbv2LSManager, d.logger, stack),
-		elbv2.NewListenerRuleSynthesizer(d.cloud.ELBV2(), d.elbv2TaggingManager, d.elbv2LRManager, d.logger, stack),
+		elbv2.NewTargetGroupSynthesizer(d.cloud.ELBV2(), d.trackingProvider, d.elbv2TaggingManager, d.elbv2TGManager, d.logger, d.protectedLoadBalancers, d.featureGates, stack),
+		elbv2.NewLoadBalancerSynthesizer(d.cloud.ELBV2(), d.trackingProvider, d.elbv2TaggingManager, d.elbv2LBManager, d.logger, d.protectedLoadBalancers, stack),
+		elbv2.NewListenerSynthesizer(d.cloud.ELBV2(), d.elbv2TaggingManager, d.elbv2LSManager, d.logger, d.protectedLoadBalancers, stack),
+		elbv2.NewListenerRuleSynthesizer(d.cloud.ELBV2(), d.elbv2TaggingManager, d.elbv2LRManager, d.logger, d.protectedLoadBalancers, stack),
 		elbv2.NewTargetGroupBindingSynthesizer(d.k8sClient, d.trackingProvider, d.elbv2TGBManager, d.logger, stack),
 	}
 

@@ -13,21 +13,23 @@ import (
 
 // NewListenerRuleSynthesizer constructs new listenerRuleSynthesizer.
 func NewListenerRuleSynthesizer(elbv2Client services.ELBV2, taggingManager TaggingManager,
-	lrManager ListenerRuleManager, logger logr.Logger, stack core.Stack) *listenerRuleSynthesizer {
+	lrManager ListenerRuleManager, logger logr.Logger, protectedLoadBalancers sets.String, stack core.Stack) *listenerRuleSynthesizer {
 	return &listenerRuleSynthesizer{
-		elbv2Client:    elbv2Client,
-		lrManager:      lrManager,
-		logger:         logger,
-		taggingManager: taggingManager,
-		stack:          stack,
+		elbv2Client:            elbv2Client,
+		lrManager:              lrManager,
+		logger:                 logger,
+		protectedLoadBalancers: protectedLoadBalancers,
+		taggingManager:         taggingManager,
+		stack:                  stack,
 	}
 }
 
 type listenerRuleSynthesizer struct {
-	elbv2Client    services.ELBV2
-	lrManager      ListenerRuleManager
-	logger         logr.Logger
-	taggingManager TaggingManager
+	elbv2Client            services.ELBV2
+	lrManager              ListenerRuleManager
+	logger                 logr.Logger
+	protectedLoadBalancers sets.String
+	taggingManager         TaggingManager
 
 	stack core.Stack
 }
@@ -43,6 +45,14 @@ func (s *listenerRuleSynthesizer) Synthesize(ctx context.Context) error {
 	var resLSs []*elbv2model.Listener
 	s.stack.ListResources(&resLSs)
 	for _, resLS := range resLSs {
+		lbARN, err := resLS.Spec.LoadBalancerARN.Resolve(ctx)
+		if err != nil {
+			return err
+		}
+		if s.protectedLoadBalancers.Has(lbARN) {
+			continue
+		}
+
 		lsARN, err := resLS.ListenerARN().Resolve(ctx)
 		if err != nil {
 			return err

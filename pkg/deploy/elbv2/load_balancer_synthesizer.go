@@ -21,24 +21,26 @@ const (
 
 // NewLoadBalancerSynthesizer constructs loadBalancerSynthesizer
 func NewLoadBalancerSynthesizer(elbv2Client services.ELBV2, trackingProvider tracking.Provider, taggingManager TaggingManager,
-	lbManager LoadBalancerManager, logger logr.Logger, stack core.Stack) *loadBalancerSynthesizer {
+	lbManager LoadBalancerManager, logger logr.Logger, protectedLoadBalancers sets.String, stack core.Stack) *loadBalancerSynthesizer {
 	return &loadBalancerSynthesizer{
-		elbv2Client:      elbv2Client,
-		trackingProvider: trackingProvider,
-		taggingManager:   taggingManager,
-		lbManager:        lbManager,
-		logger:           logger,
-		stack:            stack,
+		elbv2Client:            elbv2Client,
+		trackingProvider:       trackingProvider,
+		taggingManager:         taggingManager,
+		lbManager:              lbManager,
+		logger:                 logger,
+		protectedLoadBalancers: protectedLoadBalancers,
+		stack:                  stack,
 	}
 }
 
 // loadBalancerSynthesizer is responsible for synthesize LoadBalancer resources types for certain stack.
 type loadBalancerSynthesizer struct {
-	elbv2Client      services.ELBV2
-	trackingProvider tracking.Provider
-	taggingManager   TaggingManager
-	lbManager        LoadBalancerManager
-	logger           logr.Logger
+	elbv2Client            services.ELBV2
+	trackingProvider       tracking.Provider
+	taggingManager         TaggingManager
+	lbManager              LoadBalancerManager
+	logger                 logr.Logger
+	protectedLoadBalancers sets.String
 
 	stack core.Stack
 }
@@ -61,6 +63,10 @@ func (s *loadBalancerSynthesizer) Synthesize(ctx context.Context) error {
 	//  * we can avoid the operation to detach a targetGroup from unmatched LBs. (a targetGroup can only attach to one LB).
 	// I don't like this, but it's the easiest solution to meet our requirement :D.
 	for _, sdkLB := range unmatchedSDKLBs {
+		if s.protectedLoadBalancers.Has(awssdk.StringValue(sdkLB.LoadBalancer.LoadBalancerArn)) {
+			continue
+		}
+
 		if err := s.lbManager.Delete(ctx, sdkLB); err != nil {
 			errMessage := err.Error()
 			if strings.Contains(errMessage, "OperationNotPermitted") && strings.Contains(errMessage, "deletion protection") {
@@ -124,7 +130,8 @@ type resAndSDKLoadBalancerPair struct {
 }
 
 func matchResAndSDKLoadBalancers(resLBs []*elbv2model.LoadBalancer, sdkLBs []LoadBalancerWithTags,
-	resourceIDTagKey string) ([]resAndSDKLoadBalancerPair, []*elbv2model.LoadBalancer, []LoadBalancerWithTags, error) {
+	resourceIDTagKey string,
+) ([]resAndSDKLoadBalancerPair, []*elbv2model.LoadBalancer, []LoadBalancerWithTags, error) {
 	var matchedResAndSDKLBs []resAndSDKLoadBalancerPair
 	var unmatchedResLBs []*elbv2model.LoadBalancer
 	var unmatchedSDKLBs []LoadBalancerWithTags
