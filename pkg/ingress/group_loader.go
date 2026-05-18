@@ -23,9 +23,9 @@ const (
 )
 
 var (
-	// groupName must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character.
+	// groupName must consist of lower case alphanumeric characters, '/', '-' or '.', and must start and end with an alphanumeric character.
 	// groupName must be no more than 63 character.
-	groupNameRegex = regexp.MustCompile("^([a-z0-9][-a-z0-9.]*)?[a-z0-9]$")
+	groupNameRegex = regexp.MustCompile("^([a-z0-9][-a-z0-9/.]*)?[a-z0-9]$")
 
 	// err represents that ingress group is invalid.
 	errInvalidIngressGroup = errors.New("invalid ingress group")
